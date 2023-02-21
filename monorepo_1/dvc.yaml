@@ -1,0 +1,57 @@
+stages:
+  # PROJECT 1
+  do_p1_s1:
+    cmd: pushd project_1 && python do_stage_1.py && popd
+    outs:
+      - project_1/artifact_of_stage_1.txt
+  # PROJECT 2
+  do_p2_s1:
+    cmd: pushd project_2 && python do_stage_1.py && popd
+    outs:
+      - project_2/artifact_of_stage_1.txt
+  do_p2_s2:
+    cmd: pushd project_2 && python do_stage_2.py && popd
+    deps:
+      - project_2/artifact_of_stage_1.txt
+    outs:
+      - project_2/artifact_of_stage_2.txt
+  # PROJECT 3
+  do_p3_s1:
+    cmd: pushd project_3 && python do_stage_1.py && popd
+    outs:
+      - project_3/artifact_of_stage_1.txt
+  do_p3_s2:
+    cmd: pushd project_3 && python do_stage_2.py && popd
+    deps:
+      - project_3/artifact_of_stage_1.txt
+    outs:
+      - project_3/artifact_of_stage_2.txt
+  do_p3_s3:
+    cmd: pushd project_3 && python do_stage_3.py && popd
+    deps:
+      - project_3/artifact_of_stage_2.txt
+    outs:
+      - project_3/artifact_of_stage_3.txt
+  # PROJECT 4
+  do_p4_s1:
+    cmd: pushd project_4 && python do_stage_1.py && popd
+    outs:
+      - project_4/artifact_of_stage_1.txt
+  do_p4_s2:
+    cmd: pushd project_4 && python do_stage_2.py && popd
+    deps:
+      - project_4/artifact_of_stage_1.txt
+    outs:
+      - project_4/artifact_of_stage_2.txt
+  do_p4_s3:
+    cmd: pushd project_4 && python do_stage_3.py && popd
+    deps:
+      - project_4/artifact_of_stage_2.txt
+    outs:
+      - project_4/artifact_of_stage_3.txt
+  do_p4_s4:
+    cmd: pushd project_4 && python do_stage_4.py && popd
+    deps:
+      - project_4/artifact_of_stage_3.txt
+    outs:
+      - project_4/artifact_of_stage_4.txt

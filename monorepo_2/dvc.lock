@@ -1,0 +1,10 @@
+schema: '2.0'
+stages:
+  project_1:
+    cmd: pushd project_1 && dvc repro && popd
+  project_4:
+    cmd: pushd project_4 && dvc repro && popd
+  project_3:
+    cmd: pushd project_3 && dvc repro && popd
+  project_2:
+    cmd: pushd project_2 && dvc repro && popd

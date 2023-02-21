@@ -1,0 +1,3 @@
+stages:
+  projects:
+    cmd: ./find_and_execute_pipelines.bash

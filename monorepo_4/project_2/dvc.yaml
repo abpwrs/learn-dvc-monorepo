@@ -1,0 +1,11 @@
+stages:
+  do_p2_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+  do_p2_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt

@@ -1,0 +1,23 @@
+stages:
+  do_p4_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+  do_p4_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt
+  do_p4_s3:
+    cmd: python do_stage_3.py
+    deps:
+      - artifact_of_stage_2.txt
+    outs:
+      - artifact_of_stage_3.txt
+  do_p4_s4:
+    cmd: python do_stage_4.py
+    deps:
+      - artifact_of_stage_3.txt
+    outs:
+      - artifact_of_stage_4.txt

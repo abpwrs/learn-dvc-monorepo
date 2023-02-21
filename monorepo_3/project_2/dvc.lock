@@ -1,0 +1,18 @@
+schema: '2.0'
+stages:
+  do_p2_s1:
+    cmd: python do_stage_1.py
+    outs:
+    - path: artifact_of_stage_1.txt
+      md5: e669cde80b790f3438ef22fe8f0d8c04
+      size: 19
+  do_p2_s2:
+    cmd: python do_stage_2.py
+    deps:
+    - path: artifact_of_stage_1.txt
+      md5: e669cde80b790f3438ef22fe8f0d8c04
+      size: 19
+    outs:
+    - path: artifact_of_stage_2.txt
+      md5: f320cb9d6fdb6f96b2afcb07fc81bb0a
+      size: 19

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Author: "alex"
+# Date: 20230220
+
+# args:
+# 1 --
+# 2 --
+
+#if [[ $# -ne 1 ]]; then
+#    echo "Usage: $0 <param-1> <param-2> ..."
+#    exit
+#fi
+
+
+# script:
+
+for repo_idx in $(seq 1 4); do
+
+repo_name="monorepo_$repo_idx"
+mkdir $repo_name && echo "making $repo_name"
+
+pushd $repo_name &> /dev/null
+dvc init --subdir &> /dev/null
+for project_idx in $(seq 1 4); do
+project_name="project_$project_idx"
+
+mkdir $project_name && echo "making $project_name"
+pushd $project_name &> /dev/null
+for stage_idx in $(seq 1 $project_idx); do
+
+tee -a "do_stage_$stage_idx.py" << END
+print("doing project($project_idx) stage($stage_idx)")
+with open("artifact_of_stage_$stage_idx.txt", 'w') as f:
+    f.write("i came from stage $stage_idx")
+END
+
+done
+popd &> /dev/null
+
+done
+popd &> /dev/null
+
+done

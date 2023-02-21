@@ -1,0 +1,9 @@
+stages:
+  projects:
+    foreach: # List of project paths
+      - project_1
+      - project_2
+      - project_3
+      - project_4
+    do:
+      cmd: pushd ${item} && dvc repro && popd

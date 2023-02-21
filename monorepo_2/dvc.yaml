@@ -1,0 +1,13 @@
+stages:
+  # PROJECT 1
+  project_1:
+    cmd: pushd project_1 && dvc repro && popd
+  # PROJECT 2
+  project_2:
+    cmd: pushd project_2 && dvc repro && popd
+  # PROJECT 3
+  project_3:
+    cmd: pushd project_3 && dvc repro && popd
+  # PROJECT 4
+  project_4:
+    cmd: pushd project_4 && dvc repro && popd
