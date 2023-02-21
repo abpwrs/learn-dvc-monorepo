@@ -27,3 +27,345 @@ all of the above approaches work, but have various pros/cons
   - doesn't support inter-pipeline deps/outs as effectively (as best I can tell), but could be hacked together if you can parameterize outs/deps by the keys/values in the foreach
 - monorepo_4 -- dynamic pipeline discovery script
   - no support for inter-pipeline deps/outs, but top-level never needs to change
+
+---
+---
+
+# The dvc.yaml files
+
+## monorepo_1
+### ./dvc.yaml
+```yaml
+stages:
+  # PROJECT 1
+  do_p1_s1:
+    cmd: pushd project_1 && python do_stage_1.py && popd
+    outs:
+      - project_1/artifact_of_stage_1.txt
+  # PROJECT 2
+  do_p2_s1:
+    cmd: pushd project_2 && python do_stage_1.py && popd
+    outs:
+      - project_2/artifact_of_stage_1.txt
+  do_p2_s2:
+    cmd: pushd project_2 && python do_stage_2.py && popd
+    deps:
+      - project_2/artifact_of_stage_1.txt
+    outs:
+      - project_2/artifact_of_stage_2.txt
+  # PROJECT 3
+  do_p3_s1:
+    cmd: pushd project_3 && python do_stage_1.py && popd
+    outs:
+      - project_3/artifact_of_stage_1.txt
+  do_p3_s2:
+    cmd: pushd project_3 && python do_stage_2.py && popd
+    deps:
+      - project_3/artifact_of_stage_1.txt
+    outs:
+      - project_3/artifact_of_stage_2.txt
+  do_p3_s3:
+    cmd: pushd project_3 && python do_stage_3.py && popd
+    deps:
+      - project_3/artifact_of_stage_2.txt
+    outs:
+      - project_3/artifact_of_stage_3.txt
+  # PROJECT 4
+  do_p4_s1:
+    cmd: pushd project_4 && python do_stage_1.py && popd
+    outs:
+      - project_4/artifact_of_stage_1.txt
+  do_p4_s2:
+    cmd: pushd project_4 && python do_stage_2.py && popd
+    deps:
+      - project_4/artifact_of_stage_1.txt
+    outs:
+      - project_4/artifact_of_stage_2.txt
+  do_p4_s3:
+    cmd: pushd project_4 && python do_stage_3.py && popd
+    deps:
+      - project_4/artifact_of_stage_2.txt
+    outs:
+      - project_4/artifact_of_stage_3.txt
+  do_p4_s4:
+    cmd: pushd project_4 && python do_stage_4.py && popd
+    deps:
+      - project_4/artifact_of_stage_3.txt
+    outs:
+      - project_4/artifact_of_stage_4.txt
+
+```
+
+
+---
+## monorepo_2
+### ./dvc.yaml
+```yaml
+stages:
+  # PROJECT 1
+  project_1:
+    cmd: pushd project_1 && dvc repro && popd
+  # PROJECT 2
+  project_2:
+    cmd: pushd project_2 && dvc repro && popd
+  # PROJECT 3
+  project_3:
+    cmd: pushd project_3 && dvc repro && popd
+  # PROJECT 4
+  project_4:
+    cmd: pushd project_4 && dvc repro && popd
+
+```
+
+### ./project_1/dvc.yaml
+```yaml
+stages:
+  do_p1_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+
+```
+
+### ./project_2/dvc.yaml
+```yaml
+stages:
+  do_p2_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+  do_p2_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt
+
+```
+
+### ./project_3/dvc.yaml
+```yaml
+stages:
+  do_p3_s1:
+    cmd: python do_stage_1.py 
+    outs:
+      - artifact_of_stage_1.txt
+  do_p3_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt
+  do_p3_s3:
+    cmd: python do_stage_3.py
+    deps:
+      - artifact_of_stage_2.txt
+    outs:
+      - artifact_of_stage_3.txt
+```
+
+### ./project_4/dvc.yaml
+```yaml
+stages:
+  do_p4_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+  do_p4_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt
+  do_p4_s3:
+    cmd: python do_stage_3.py
+    deps:
+      - artifact_of_stage_2.txt
+    outs:
+      - artifact_of_stage_3.txt
+  do_p4_s4:
+    cmd: python do_stage_4.py
+    deps:
+      - artifact_of_stage_3.txt
+    outs:
+      - artifact_of_stage_4.txt
+
+```
+
+
+---
+## monorepo_3
+### ./dvc.yaml
+```yaml
+stages:
+  projects:
+    foreach: # List of project paths
+      - project_1
+      - project_2
+      - project_3
+      - project_4
+    do:
+      cmd: pushd ${item} && dvc repro && popd
+
+```
+
+### ./project_1/dvc.yaml
+```yaml
+stages:
+  do_p1_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+
+```
+
+### ./project_2/dvc.yaml
+```yaml
+stages:
+  do_p2_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+  do_p2_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt
+
+```
+
+### ./project_3/dvc.yaml
+```yaml
+stages:
+  do_p3_s1:
+    cmd: python do_stage_1.py 
+    outs:
+      - artifact_of_stage_1.txt
+  do_p3_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt
+  do_p3_s3:
+    cmd: python do_stage_3.py
+    deps:
+      - artifact_of_stage_2.txt
+    outs:
+      - artifact_of_stage_3.txt
+```
+
+### ./project_4/dvc.yaml
+```yaml
+stages:
+  do_p4_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+  do_p4_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt
+  do_p4_s3:
+    cmd: python do_stage_3.py
+    deps:
+      - artifact_of_stage_2.txt
+    outs:
+      - artifact_of_stage_3.txt
+  do_p4_s4:
+    cmd: python do_stage_4.py
+    deps:
+      - artifact_of_stage_3.txt
+    outs:
+      - artifact_of_stage_4.txt
+
+```
+
+
+---
+## monorepo_4
+### ./dvc.yaml
+```yaml
+stages:
+  projects:
+    cmd: ./find_and_execute_pipelines.bash
+
+```
+
+### ./project_1/dvc.yaml
+```yaml
+stages:
+  do_p1_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+
+```
+
+### ./project_2/dvc.yaml
+```yaml
+stages:
+  do_p2_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+  do_p2_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt
+
+```
+
+### ./project_3/dvc.yaml
+```yaml
+stages:
+  do_p3_s1:
+    cmd: python do_stage_1.py 
+    outs:
+      - artifact_of_stage_1.txt
+  do_p3_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt
+  do_p3_s3:
+    cmd: python do_stage_3.py
+    deps:
+      - artifact_of_stage_2.txt
+    outs:
+      - artifact_of_stage_3.txt
+```
+
+### ./project_4/dvc.yaml
+```yaml
+stages:
+  do_p4_s1:
+    cmd: python do_stage_1.py
+    outs:
+      - artifact_of_stage_1.txt
+  do_p4_s2:
+    cmd: python do_stage_2.py
+    deps:
+      - artifact_of_stage_1.txt
+    outs:
+      - artifact_of_stage_2.txt
+  do_p4_s3:
+    cmd: python do_stage_3.py
+    deps:
+      - artifact_of_stage_2.txt
+    outs:
+      - artifact_of_stage_3.txt
+  do_p4_s4:
+    cmd: python do_stage_4.py
+    deps:
+      - artifact_of_stage_3.txt
+    outs:
+      - artifact_of_stage_4.txt
+
+```
