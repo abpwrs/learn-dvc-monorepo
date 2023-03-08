@@ -1,6 +1,8 @@
 stages:
   do_p4_s1:
     cmd: python do_stage_1.py
+    deps:
+      - ../project_3/artifact_of_stage_3.txt
     outs:
       - artifact_of_stage_1.txt
   do_p4_s2:
